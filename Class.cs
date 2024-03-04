@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,8 +10,7 @@ public class TextFile
 {
     public string FileName { get; set; }
     public string Content { get; set; }
-    private TextFileMemento memento;
-
+    private Caretaker caretaker = new Caretaker();
 
     public void SaveAsBinary(string filePath)
     {
@@ -56,15 +55,15 @@ public class TextFile
     // Memento:
     public void SaveState()
     {
-        memento = new TextFileMemento(this);
+        caretaker.TextFileMemento = new TextFileMemento(this);
     }
 
     public void RestoreState()
     {
-        if (memento != null)
+        if (caretaker.TextFileMemento != null)
         {
-            FileName = memento.FileName;
-            Content = memento.Content;
+            FileName = caretaker.TextFileMemento.FileName;
+            Content = caretaker.TextFileMemento.Content;
         }
     }
 
@@ -102,6 +101,12 @@ public class TextFileMemento
         FileName = textFile.FileName;
         Content = textFile.Content;
     }
+}
+
+[Serializable]
+class Caretaker
+{
+    public TextFileMemento TextFileMemento { get; set; }
 }
 
 class KeywordInputOutput
