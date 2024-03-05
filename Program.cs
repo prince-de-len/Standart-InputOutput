@@ -62,18 +62,22 @@ class Program
         IndexFiles(directoryPath, keywords); // Индексация
 
         // memento
-        textFile.SaveState(); // Сохраняем состояние
-
         Console.WriteLine("\nТекущее состояние:");
         Console.WriteLine($"FileName: {textFile.FileName}, Content: {textFile.Content}");
 
+        Caretaker caretaker = new Caretaker();
+        caretaker.SaveState(textFile); // Сохраняем состояние
 
-        textFile.FileName = "updated.txt";
-        textFile.Content = "Updated content";
+        textFile = new TextFile
+        {
+            FileName= "updated.txt",
+            Content= "updated content",
+        };
+
         Console.WriteLine("\nНовое состояние:");
         Console.WriteLine($"FileName: {textFile.FileName}, Content: {textFile.Content}");
 
-        textFile.RestoreState(); // Восстанавливаем состояние
+        caretaker.RestoreState(textFile); // Восстанавливаем состояние
         Console.WriteLine("\nВосстановленное состояние:");
         Console.WriteLine($"FileName: {textFile.FileName}, Content: {textFile.Content}");
     }
