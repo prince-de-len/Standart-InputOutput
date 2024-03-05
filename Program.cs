@@ -7,78 +7,78 @@ class Program
 {
     static void Main()
     {
+        string directoryPath = "C:\\Users\\princedelen\\source\\repos\\Standart InputOutput";
+        string keyword;
+        string content;
+        string extension;
+
         Console.WriteLine("Добро пожаловать в творческую лабораторию имени Иосифа Виссарионовича Сталина! " +
             "Чтобы вы не запутались, введу вас в курс дела: сначала программа вас попросит указать ключевые слова для " +
             "индексации, потом попросит одно ключевое слово для поиска текстовых файлов по слову, в данной связи тут же попросит " +
             "вписать расширение файлов, которые вы ищете для поиска файлов (не индексации!). Далее программа попросит вас " +
             "вписать что-нибудь в файл example.txt, на основе коего демонстрируется функциональность сей изваяния человеческого " +
             "разумения. Далее вы узрите возможности паттерна Memento. Удачи!\n");
-        string DirectoryPath = "C:\\Users\\princedelen\\source\\repos\\Standart InputOutput";
-        string Keyword;
-        string Content;
-        string Extension;
 
-        KeywordInputOutput KeywordInputOutput = new KeywordInputOutput();
-        string[] Keywords = KeywordInputOutput.GetKeywordsFromConsole();
+        KeywordInputOutput keywordInputOutput = new KeywordInputOutput();
+        string[] keywords = keywordInputOutput.GetKeywordsFromConsole();
 
         Console.WriteLine("Введите ключевое слово для поиска файла:");
-        Keyword = Console.ReadLine();
+        keyword = Console.ReadLine();
         Console.WriteLine();
 
         Console.WriteLine("Файлы с какими расширениями (bin, xml, txt)?");
-        Extension = Console.ReadLine();
+        extension = Console.ReadLine();
         Console.WriteLine();
 
         Console.WriteLine("Введите содержание файла:");
-        Content = Console.ReadLine();
+        content = Console.ReadLine();
         Console.WriteLine();
 
-        TextFile File = new TextFile
+        TextFile textFile = new TextFile
         {
             FileName = "example.txt",
         };
 
-        File.WriteToFile(Content);
+        textFile.WriteToFile(content);
 
-        File.SaveAsBinary(DirectoryPath + "\\example.bin");
+        textFile.SaveAsBinary(directoryPath + "\\example.bin");
 
-        var LoadedFromFile = TextFile.LoadFromBinary(DirectoryPath + "\\example.bin");
-        Console.WriteLine("Содержимое из бинарного файла: " + LoadedFromFile.Content);
+        var loadedFromFile = TextFile.LoadFromBinary(directoryPath + "\\example.bin");
+        Console.WriteLine("Содержимое из бинарного файла: " + loadedFromFile.Content);
 
-        File.SaveAsXml(DirectoryPath + "\\example.xml");
+        textFile.SaveAsXml(directoryPath + textFile.FileName);
 
-        var LoadedFromXml = TextFile.LoadFromXml(DirectoryPath + "\\example.xml");
-        Console.WriteLine("Содержимое из XML файла: " + LoadedFromXml.Content);
+        var loadedFromXml = TextFile.LoadFromXml(directoryPath + textFile.FileName);
+        Console.WriteLine("Содержимое из XML файла: " + loadedFromXml.Content);
 
         TextSearch SearchResult = new TextSearch();
-        List<string> ResultOfSearch = SearchResult.SearchFilesByKeyword(DirectoryPath, Keyword, Extension);
+        List<string> ResultOfSearch = SearchResult.SearchFilesByKeyword(directoryPath, keyword, extension);
         foreach (string Item in ResultOfSearch)
         {
             Console.WriteLine(Item);
         }
 
         Console.WriteLine();
-        IndexFiles(DirectoryPath, Keywords); // Индексация
+        IndexFiles(directoryPath, keywords); // Индексация
 
         // memento
-
-        File.SaveState(); // Сохраняем состояние
+        textFile.SaveState(); // Сохраняем состояние
 
         Console.WriteLine("\nТекущее состояние:");
-        Console.WriteLine($"FileName: {File.FileName}, Content: {File.Content}");
+        Console.WriteLine($"FileName: {textFile.FileName}, Content: {textFile.Content}");
 
 
-        File.FileName = "updated.txt";
-        File.Content = "Updated content";
+        textFile.FileName = "updated.txt";
+        textFile.Content = "Updated content";
         Console.WriteLine("\nНовое состояние:");
-        Console.WriteLine($"FileName: {File.FileName}, Content: {File.Content}");
+        Console.WriteLine($"FileName: {textFile.FileName}, Content: {textFile.Content}");
 
-        File.RestoreState(); // Восстанавливаем состояние
+        textFile.RestoreState(); // Восстанавливаем состояние
         Console.WriteLine("\nВосстановленное состояние:");
-        Console.WriteLine($"FileName: {File.FileName}, Content: {File.Content}");
+        Console.WriteLine($"FileName: {textFile.FileName}, Content: {textFile.Content}");
     }
     
-    // Приложение для индексации
+    // функция для индексации
     static void IndexFiles(string directoryPath, string[] keywords)
     {
         if (Directory.Exists(directoryPath))
