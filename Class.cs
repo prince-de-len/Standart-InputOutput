@@ -6,7 +6,7 @@ using System.Xml.Schema;
 using System.Xml.Serialization;
 
 [Serializable] 
-public class TextFile
+public class TextFile : IOriginator
 {
     public string FileName { get; set; }
     public string Content { get; set; }
@@ -54,21 +54,24 @@ public class TextFile
         Content = content;
     }
 
-    // Memento:
-    public void SaveState()
+    object IOriginator.GetMemento()
     {
-        _caretaker.Memento = new Memento(this);
+        return new Memento
+        {
+            FileName = this.FileName,
+            Content = this.Content
+        };
     }
 
-    public void RestoreState()
+    void IOriginator.SetMemento(object memento)
     {
-        if (_caretaker.Memento != null)
+        if (memento is Memento)
         {
-            FileName = _caretaker.Memento.FileName;
-            Content = _caretaker.Memento.Content;
+            var mem = memento as Memento;
+            FileName = mem.FileName;
+            Content = mem.Content;
         }
     }
-
 }
 
 public class TextSearch
@@ -92,23 +95,31 @@ public class TextSearch
     }
 }
 
-[Serializable]
-public class Memento 
+class Memento
 {
     public string FileName { get; set; }
     public string Content { get; set; }
+}
 
-    public Memento(TextFile textFile)
-    {
-        FileName = textFile.FileName;
-        Content = textFile.Content;
-    }
+public interface IOriginator
+{
+    object GetMemento();
+    void SetMemento(object memento);
 }
 
 [Serializable]
-class Caretaker
+public class Caretaker
 {
-    public Memento Memento { get; set; }
+    private object _memento;
+    public void SaveState(IOriginator originator)
+    {
+        _memento = originator.GetMemento();
+    }
+
+    public void RestoreState(IOriginator originator)
+    {
+        originator.SetMemento(_memento);
+    }
 }
 
 class KeywordInputOutput
@@ -133,4 +144,3 @@ class KeywordInputOutput
         return keywords.ToArray();
     }
 }
-
