@@ -10,7 +10,6 @@ public class TextFile : IOriginator
 {
     public string FileName { get; set; }
     public string Content { get; set; }
-    private Caretaker _caretaker = new Caretaker();
 
     public void SaveAsBinary(string filePath)
     {
