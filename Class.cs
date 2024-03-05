@@ -10,41 +10,43 @@ public class TextFile
 {
     public string FileName { get; set; }
     public string Content { get; set; }
-    private Caretaker caretaker = new Caretaker();
+    private Caretaker _caretaker = new Caretaker();
 
     public void SaveAsBinary(string filePath)
     {
-        using (FileStream FileStream = new FileStream(filePath, FileMode.Create))
+        using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
         {
-            var BinaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-            BinaryFormatter.Serialize(FileStream, this);
+            var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
+            binaryFormatter.Serialize(fileStream, this);
         }
     }
 
     public static TextFile LoadFromBinary(string filePath)
     {
-        using (FileStream FileStream = new FileStream(filePath, FileMode.Open))
+        using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
         {
             var binaryFormatter = new System.Runtime.Serialization.Formatters.Binary.BinaryFormatter();
-            return (TextFile)binaryFormatter.Deserialize(FileStream);
+            return (TextFile)binaryFormatter.Deserialize(fileStream);
         }
     }
 
     public void SaveAsXml(string filePath)
     {
-        using (StreamWriter StreamWriter = new StreamWriter(filePath))
+        filePath = filePath.Substring(0, filePath.Length - 4) + ".xml";
+        using (StreamWriter streamWriter = new StreamWriter(filePath))
         {
-            var XmlSerializer = new XmlSerializer(typeof(TextFile));
-            XmlSerializer.Serialize(StreamWriter, this);
+            var xmlSerializer = new XmlSerializer(typeof(TextFile));
+            xmlSerializer.Serialize(streamWriter, this);
         }
     }
 
     public static TextFile LoadFromXml(string filePath)
     {
-        using (StreamReader StreamReader = new StreamReader(filePath))
+        filePath = filePath.Substring(0, filePath.Length - 4) + ".xml";
+        using (StreamReader streamReader = new StreamReader(filePath))
         {
-            var XmlSerializer = new XmlSerializer(typeof(TextFile));
-            return (TextFile)XmlSerializer.Deserialize(StreamReader);
+            var xmlSerializer = new XmlSerializer(typeof(TextFile));
+            return (TextFile)xmlSerializer.Deserialize(streamReader);
         }
     }
     public void WriteToFile(string content)
@@ -55,15 +57,15 @@ public class TextFile
     // Memento:
     public void SaveState()
     {
-        caretaker.TextFileMemento = new TextFileMemento(this);
+        _caretaker.Memento = new Memento(this);
     }
 
     public void RestoreState()
     {
-        if (caretaker.TextFileMemento != null)
+        if (_caretaker.Memento != null)
         {
-            FileName = caretaker.TextFileMemento.FileName;
-            Content = caretaker.TextFileMemento.Content;
+            FileName = _caretaker.Memento.FileName;
+            Content = _caretaker.Memento.Content;
         }
     }
 
@@ -73,7 +75,7 @@ public class TextSearch
 {
     public List<string> SearchFilesByKeyword(string directoryPath, string keyword, string extension)
     {
-        List<string> FoundFiles = new List<string>();
+        List<string> foundFiles = new List<string>();
 
         string[] files = Directory.GetFiles(directoryPath, "*." + extension, SearchOption.AllDirectories);
 
@@ -82,21 +84,21 @@ public class TextSearch
             string content = File.ReadAllText(file);
             if (content.Contains(keyword))
             {
-                FoundFiles.Add(file);
+                foundFiles.Add(file);
             }
         }
 
-        return FoundFiles;
+        return foundFiles;
     }
 }
 
 [Serializable]
-public class TextFileMemento 
+public class Memento 
 {
     public string FileName { get; set; }
     public string Content { get; set; }
 
-    public TextFileMemento(TextFile textFile)
+    public Memento(TextFile textFile)
     {
         FileName = textFile.FileName;
         Content = textFile.Content;
@@ -106,7 +108,7 @@ public class TextFileMemento
 [Serializable]
 class Caretaker
 {
-    public TextFileMemento TextFileMemento { get; set; }
+    public Memento Memento { get; set; }
 }
 
 class KeywordInputOutput
@@ -115,20 +117,20 @@ class KeywordInputOutput
     {
         Console.WriteLine("Введите ключевые слова для индексации (для завершения ввода введите пустую строку):");
 
-        var Keywords = new List<string>();
-        string Input;
+        var keywords = new List<string>();
+        string input;
 
         do
         {
-            Input = Console.ReadLine();
-            if (!string.IsNullOrWhiteSpace(Input))
+            input = Console.ReadLine();
+            if (!string.IsNullOrWhiteSpace(input))
             {
-                Keywords.Add(Input);
+                keywords.Add(input);
             }
         }
-        while (!string.IsNullOrWhiteSpace(Input));
+        while (!string.IsNullOrWhiteSpace(input));
 
-        return Keywords.ToArray();
+        return keywords.ToArray();
     }
 }
 
